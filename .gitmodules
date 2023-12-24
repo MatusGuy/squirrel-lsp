@@ -1,0 +1,7 @@
+[submodule "external/squirrel"]
+	path = external/squirrel
+	url = https://github.com/albertodemichelis/squirrel.git
+[submodule "external/qtlanguageserver"]
+	path = external/qtlanguageserver
+	url = https://github.com/MatusGuy/qtlanguageserver
+	branch = 6.6.1

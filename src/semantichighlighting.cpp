@@ -7,12 +7,12 @@ SemanticHighlighting::SemanticHighlighting(QObject *parent)
 }
 
 QString SemanticHighlighting::name() const {
-	return "Semantichighlighting";
+	return "SemantichHighlighting";
 }
 
 void SemanticHighlighting::registerHandlers(QLanguageServer* server,
 							  QLanguageServerProtocol* protocol) {
-
+	protocol->hand
 }
 
 void SemanticHighlighting::setupCapabilities(const InitializeParams& clientInfo, InitializeResult& result) {

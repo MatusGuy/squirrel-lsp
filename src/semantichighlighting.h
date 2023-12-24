@@ -8,6 +8,8 @@
 #include <QtLanguageServer>
 #include <QtLanguageServer/private/qlanguageserver_p.h>
 
+#include "semantictokens.h"
+
 using namespace QLspSpecification;
 
 class SemanticHighlighting : public QLanguageServerModule {

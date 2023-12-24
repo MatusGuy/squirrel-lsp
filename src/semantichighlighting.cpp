@@ -1,7 +1,7 @@
 #include "semantichighlighting.h"
 
 SemanticHighlighting::SemanticHighlighting(QObject *parent)
-	: QLanguageServerSemantichighlighting{parent}
+	: QLanguageServerModule{parent}
 {
 
 }
@@ -16,5 +16,13 @@ void SemanticHighlighting::registerHandlers(QLanguageServer* server,
 }
 
 void SemanticHighlighting::setupCapabilities(const InitializeParams& clientInfo, InitializeResult& result) {
-	result.capabilities.semanticTokensProvider
+	result.capabilities.semanticTokensProvider = SemanticTokensOptions{
+		true,
+		SemanticTokensLegend{
+			SEMANTIC_TOKEN_NAMES,
+			{}
+		},
+		false,
+		true
+	};
 }

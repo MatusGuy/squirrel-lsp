@@ -4,23 +4,25 @@
 #include <QMap>
 #include <QString>
 
+#include <squirrel.h>
+#include <squirrel/sqobject.h>
 #include <squirrel/sqcompiler.h>
 
 // TODO: maybe we can use http://squirrel-lang.org/squirreldoc/reference/language/classes.html#class-attributes
 // for the ones I commented
 enum struct SemanticTokenType {
 	Identifier = -1,
-	//Namespace,
-	//Type,
+	Namespace, //
+	Type,
 	Class,
 	Enum,
-	//Interface,
-	//Struct,
+	Interface, //
+	Struct, //
 	Parameter,
 	Variable,
 	Property,
 	EnumMember,
-	//Event,
+	Event, //
 	Function,
 	Method,
 	Keyword,
@@ -30,20 +32,20 @@ enum struct SemanticTokenType {
 	Operator,
 };
 
-const QMap<SemanticTokenType, QString> SEMANTIC_TOKEN_NAMES = {
-	{SemanticTokenType::Class, "class"},
-	{SemanticTokenType::Enum, "enum"},
-	{SemanticTokenType::Parameter, "parameter"},
-	{SemanticTokenType::Variable, "variable"},
-	{SemanticTokenType::Property, "property"},
-	{SemanticTokenType::EnumMember, "enumMember"},
-	{SemanticTokenType::Function, "function"},
-	{SemanticTokenType::Method, "method"},
-	{SemanticTokenType::Keyword, "keyword"},
-	{SemanticTokenType::Comment, "comment"},
-	{SemanticTokenType::String, "string"},
-	{SemanticTokenType::Number, "number"},
-	{SemanticTokenType::Operator, "operator"},
+const QList<QByteArray> SEMANTIC_TOKEN_NAMES = {
+	"class",
+	"enum",
+	"parameter",
+	"variable",
+	"property",
+	"enumMember",
+	"function",
+	"method",
+	"keyword",
+	"comment",
+	"string",
+	"number",
+	"operator"
 };
 
 /**
@@ -54,6 +56,7 @@ const QMap<SemanticTokenType, QString> SEMANTIC_TOKEN_NAMES = {
  * @param sqtk - lexer token
  * @return
  */
+/*
 SemanticTokenType lextk_to_semtk(int sqtk) {
 	switch (sqtk) {
 	case TK_IDENTIFIER:
@@ -130,6 +133,8 @@ SemanticTokenType lextk_to_semtk(int sqtk) {
 	case TK_RAWCALL:
 		return SemanticTokenType::Keyword;
 	}
+	return SemanticTokenType::Identifier;
 }
+*/
 
 #endif // SEMANTICTOKENS_H

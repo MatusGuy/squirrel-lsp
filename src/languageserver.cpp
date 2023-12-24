@@ -5,6 +5,6 @@ LanguageServer::LanguageServer(const QJsonRpcTransport::DataHandler& h,
 	: QObject(parent)
 	, m_server(h, this)
 {
-	m_server.addServerSemantichighlighting(&m_semantichighlighting);
+	m_server.addServerModule(&m_semantichighlighting);
 	m_server.finishSetup();
 }

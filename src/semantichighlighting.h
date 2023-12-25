@@ -6,7 +6,10 @@
 #include <QMap>
 
 #include <QtLanguageServer>
-#include <QtLanguageServer/private/qlanguageserver_p.h>
+#include <qlanguageserver_p.h>
+
+#include <squirrel.h>
+#include <squirrel/sqvm.h>
 
 #include "semantictokens.h"
 
@@ -22,6 +25,9 @@ public:
 						  QLanguageServerProtocol* protocol);
 	void setupCapabilities(const InitializeParams& clientInfo,
 						   InitializeResult& result);
+	void semanticTokensRequest(const QByteArray&, const SemanticTokensParams& params,
+							   LSPPartialResponse<std::variant<SemanticTokens, std::nullptr_t>,
+												  SemanticTokensPartialResult>&& resp);
 };
 
 #endif // SEMANTICHIGHLIGHTING_H

@@ -12,7 +12,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 add_subdirectory(external/qtlanguageserver)
 add_subdirectory(external/squirrel)
 
-qt_standard_project_setup()
+#qt_standard_project_setup()
 qt_add_executable(squirrel-lsp)
 
 file(GLOB SRC src/*.cpp src/*.h)
@@ -22,8 +22,8 @@ file(GLOB NUTS tests/*.nut) # Funny.
 target_sources(squirrel-lsp PUBLIC ${NUTS})
 source_group(Tests FILES ${NUTS})
 
-link_qtlanguageserver(squirrel-lsp external/qtlanguageserver/src/languageserver/)
+link_qtlanguageserver(squirrel-lsp ${PROJECT_SOURCE_DIR}/external/qtlanguageserver/src/languageserver/)
 target_link_libraries(squirrel-lsp PRIVATE Qt::Core squirrel)
 
 # Oh, don't mind me!
-target_include_directories(squirrel-lsp PRIVATE external/squirrel/)
+target_include_directories(squirrel-lsp PRIVATE external/squirrel/ external/qtlanguageserver/src/languageserver/)

@@ -1,6 +1,7 @@
 #ifndef LANGUAGESERVER_H
 #define LANGUAGESERVER_H
 
+#include "squirrelenv.h"
 #include "semantichighlighting.h"
 
 #include <QtJsonRpc/private/qjsonrpctransport_p.h>

@@ -1,1 +1,1 @@
-adfagsgsg
+local a = 1

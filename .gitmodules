@@ -4,4 +4,4 @@
 [submodule "external/qtlanguageserver"]
 	path = external/qtlanguageserver
 	url = https://github.com/MatusGuy/qtlanguageserver
-	branch = 6.6.1
+	branch = 6.6.0

@@ -1,7 +1,7 @@
 #include "semantichighlighting.h"
 
 SemanticHighlighting::SemanticHighlighting(QObject *parent)
-	: QLanguageServerModule{parent}
+	: LanguageServerModule{parent}
 {
 
 }
@@ -14,15 +14,41 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 												 const SemanticTokensParams & params,
 												 LSPPartialResponse<std::variant<SemanticTokens, std::nullptr_t>,
 																	SemanticTokensPartialResult>&& resp) {
-	QString docpath(params.textDocument.uri);
-	QFile doc(docpath);
-	doc.open(QFile::ReadOnly);
+	QString docpath = QUrl(params.textDocument.uri).toLocalFile();
+	//Logger::get().log(MessageType::Info, QString("Opening %1").arg(docpath).toUtf8());
 
-	QList<QPair<SquirrelEnv::Range, SQInteger>> lexed = SquirrelEnv::get().lex(doc.readAll());
+	//protocol()->notifyShowMessage({MessageType::Info, "Process semantic tokens request."});
+
+	QFile doc(docpath);
+
+	// Open the file in ReadOnly mode
+	if (!doc.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		// Report an error if the file couldn't be opened
+		Logger::get().log(MessageType::Error, QString("Error opening file: %1").arg(doc.errorString()).toUtf8());
+		return;
+	}
+
+	// Create a QTextStream to read from the file
+	QTextStream in(&doc);
+
+	// Read all text from the file
+	QString fileContent = in.readAll();
+
+	// Check for errors during reading
+	if (in.status() != QTextStream::Ok) {
+		Logger::get().log(MessageType::Error, QString("Error reading file: %1").arg(in.status()).toUtf8());
+		doc.close(); // Close the file before returning
+		return;
+	}
+
+	// Close the file after reading
 	doc.close();
 
+
+	QList<QPair<SquirrelEnv::Range, SQInteger>> lexed = SquirrelEnv::get().lex(fileContent);
+
 	SemanticTokens tokens;
-	int deltaline = 0;
+	int deltaline = 1;
 	int deltastart = 0;
 	for (auto token : lexed) {
 		auto semtk = lextkToSemtk(token.second);
@@ -32,9 +58,11 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 		deltaline = token.first.line - deltaline;
 		deltastart = token.first.start - deltastart;
 
+		//protocol()->notifyShowMessage({MessageType::Info, QString("%1 %2").arg(deltaline).arg(type).toUtf8()});
+
 		tokens.data.append(deltaline); // line
 		tokens.data.append(deltastart); // startChar
-		tokens.data.append(token.first.start - token.first.end); // length
+		tokens.data.append(token.first.end - token.first.start); // length
 		tokens.data.append(type); // tokenType
 		tokens.data.append(0); // tokenModifiers
 	}
@@ -45,15 +73,16 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 
 void SemanticHighlighting::registerHandlers(QLanguageServer* server,
 							  QLanguageServerProtocol* protocol) {
+	LanguageServerModule::registerHandlers(server, protocol);
 
-	protocol->registerSemanticTokensRequestHandler(semanticTokensRequest);
+	protocol->registerSemanticTokensRequestHandler(REQ_HANDLER(SemanticHighlighting::semanticTokensRequest, _1, _2 ,_3));
 	protocol->notifyShowMessage({MessageType::Info, "Hello!"});
 }
 
 void SemanticHighlighting::setupCapabilities(const InitializeParams& clientInfo, InitializeResult& result) {
 	result.capabilities.semanticTokensProvider = SemanticTokensOptions{
 		false,
-		SemanticTokensLegend{{},{}},
+		SemanticTokensLegend{SEMANTIC_TOKEN_TYPES,{}},
 		false,
 		true
 	};

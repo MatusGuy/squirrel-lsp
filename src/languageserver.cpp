@@ -8,6 +8,7 @@ LanguageServer::LanguageServer(const QJsonRpcTransport::DataHandler& h,
 	// force init
 	SquirrelEnv::get();
 
+	m_server.addServerModule(&Logger::get());
 	m_server.addServerModule(&m_semantichighlighting);
 	m_server.finishSetup();
 }

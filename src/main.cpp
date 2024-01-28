@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 	LanguageServer srv(handler);
 	StdinReader r;
 	QObject::connect(&r, &StdinReader::receivedData,
-					 srv.server(), &QLanguageServer::receiveData);
+					 &srv, &QLanguageServer::receiveData);
 	QObject::connect(&r, &StdinReader::eof, &app, [&app]() {
 		QTimer::singleShot(100, &app, []() {
 			QCoreApplication::processEvents();

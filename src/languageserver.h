@@ -6,17 +6,18 @@
 
 #include <QtJsonRpc/private/qjsonrpctransport_p.h>
 
-class LanguageServer : public QObject
-{
-	Q_OBJECT
+class SyncModule : public LanguageServerModule {
+	QString name() const;
+	void setupCapabilities(const InitializeParams&, InitializeResult& result);
+};
+
+class LanguageServer : public QLanguageServer {
 public:
 	LanguageServer(const QJsonRpcTransport::DataHandler& h,
 				   QObject *parent = nullptr);
 
-	QLanguageServer* server() { return &m_server; }
-
 private:
-	QLanguageServer m_server;
+	SyncModule m_sync;
 	SemanticHighlighting m_semantichighlighting;
 };
 

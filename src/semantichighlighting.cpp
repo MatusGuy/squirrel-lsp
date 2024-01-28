@@ -44,7 +44,6 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 	// Close the file after reading
 	doc.close();
 
-
 	QList<QPair<SquirrelEnv::Range, SQInteger>> lexed = SquirrelEnv::get().lex(fileContent);
 
 	SemanticTokens tokens;

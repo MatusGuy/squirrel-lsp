@@ -1,3 +1,3 @@
-type ListOfNumbers = {number}
-local a: ListOfNumbers = "hello"
-print(a)
+export type mytype = string
+local myvar: string = "hi"
+print(myvar)

@@ -2,13 +2,24 @@
 
 LanguageServer::LanguageServer(const QJsonRpcTransport::DataHandler& h,
 							   QObject* parent)
-	: QObject(parent)
-	, m_server(h, this)
+	: QLanguageServer(h, parent)
 {
 	// force init
 	SquirrelEnv::get();
 
-	m_server.addServerModule(&Logger::get());
-	m_server.addServerModule(&m_semantichighlighting);
-	m_server.finishSetup();
+	addServerModule(&Logger::get());
+	addServerModule(&m_sync);
+
+	addServerModule(&m_semantichighlighting);
+	finishSetup();
+}
+
+QString SyncModule::name() const
+{
+	return "Sync";
+}
+
+void SyncModule::setupCapabilities(const InitializeParams&, InitializeResult& result)
+{
+	result.capabilities.textDocumentSync = TextDocumentSyncKind::Full;
 }

@@ -26,14 +26,15 @@ public:
 
 	/// ripped from sqapi.cpp
 	static SQInteger bufLexfeed(SQUserPointer file) {
-		BufState *buf=(BufState*)file;
-		if(buf->size<(buf->ptr+1))
+		BufState* buf = (BufState*) file;
+		if(buf->size < (buf->ptr + 1)) {
+			Logger::get().log(MessageType::Info, "heheheha");
 			return 0;
+		}
 		return buf->buf[buf->ptr++];
 	}
 
 	static void squirrelError(void* ud, const SQChar* s);
-
 
 	struct Range {
 		int line;

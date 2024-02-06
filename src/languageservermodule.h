@@ -10,11 +10,8 @@ using namespace QLspSpecification;
 using namespace std::placeholders;
 #define REQ_HANDLER(func, ...) std::bind(&func, this, __VA_ARGS__)
 
-class LanguageServerModule : public QLanguageServerModule
-{
+class LanguageServerModule : public QLanguageServerModule {
 public:
-	explicit LanguageServerModule(QObject* parent = nullptr);
-
 	virtual void registerHandlers(QLanguageServer* server,
 								  QLanguageServerProtocol* protocol) override;
 

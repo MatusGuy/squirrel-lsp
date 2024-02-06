@@ -4,14 +4,13 @@
 #include "languageservermodule.h"
 #include "singleton.h"
 
-class Logger : public LanguageServerModule, public Singleton<Logger>
-{
+class Logger : public LanguageServerModule, public Singleton<Logger> {
 public:
 	QString name() const;
 	void setupCapabilities(const QLspSpecification::InitializeParams&,
 								   QLspSpecification::InitializeResult&) {}
 
-	void log(MessageType type, QByteArray msg);
+	void log(MessageType type, QString msg);
 };
 
 #endif // LOGGER_H

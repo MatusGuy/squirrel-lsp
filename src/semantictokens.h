@@ -1,6 +1,8 @@
 #ifndef SEMANTICTOKENS_H
 #define SEMANTICTOKENS_H
 
+#include <optional>
+
 #include <QList>
 #include <QByteArray>
 

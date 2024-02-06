@@ -2,14 +2,13 @@
 #define LANGUAGESERVER_H
 
 #include "squirrelenv.h"
+
+#include "syncmodule.h"
 #include "semantichighlighting.h"
 
-#include <QtJsonRpc/private/qjsonrpctransport_p.h>
+#include <QJsonObject>
 
-class SyncModule : public LanguageServerModule {
-	QString name() const;
-	void setupCapabilities(const InitializeParams&, InitializeResult& result);
-};
+#include <QtJsonRpc/private/qjsonrpctransport_p.h>
 
 class LanguageServer : public QLanguageServer {
 public:

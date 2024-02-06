@@ -10,6 +10,13 @@
 #include "stdinreader.h"
 #include "languageserver.h"
 
+void quit() {
+	QTimer::singleShot(100, QCoreApplication::instance(), []() {
+		QCoreApplication::processEvents();
+		QCoreApplication::exit();
+	});
+}
+
 int main(int argc, char* argv[]) {
 	QCoreApplication app(argc, argv);
 
@@ -22,13 +29,11 @@ int main(int argc, char* argv[]) {
 	LanguageServer srv(handler);
 	StdinReader r;
 	QObject::connect(&r, &StdinReader::receivedData,
-					 &srv, &QLanguageServer::receiveData);
-	QObject::connect(&r, &StdinReader::eof, &app, [&app]() {
-		QTimer::singleShot(100, &app, []() {
-			QCoreApplication::processEvents();
-			QCoreApplication::exit();
-		});
-	});
+					 &srv, &LanguageServer::receiveData);
+	QObject::connect(&r, &StdinReader::eof,
+					 &app, &quit);
+	QObject::connect(&srv, &LanguageServer::exit,
+					 &app, &quit);
 	QThreadPool::globalInstance()->start([&r]() { r.run(); });
 
 	return app.exec();

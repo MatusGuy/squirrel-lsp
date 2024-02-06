@@ -35,6 +35,30 @@ std::optional<SemanticTokenTypes> lextkToSemtk(SQInteger sqtk) {
 	case TK_MODEQ:
 	case TK_ATTR_OPEN:
 	case TK_ATTR_CLOSE:
+	case '=':
+	case '+':
+	case '-':
+	case '*':
+	case '/':
+	case '%':
+	case '~':
+	case '^':
+	case '&':
+	case '|':
+	case '!':
+	case '>':
+	case '<':
+	/*
+	case '{':
+	case '}':
+	case '[':
+	case ']':
+	case '.':
+	case ':':
+	case '\'':
+	case '"':
+	case ';':
+	*/
 		return SemanticTokenTypes::Operator;
 
 	case TK_BASE:

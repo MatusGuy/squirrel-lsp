@@ -1,11 +1,5 @@
 #include "semantichighlighting.h"
 
-SemanticHighlighting::SemanticHighlighting(QObject *parent)
-	: LanguageServerModule{parent}
-{
-
-}
-
 QString SemanticHighlighting::name() const {
 	return "SemantichHighlighting";
 }
@@ -24,7 +18,7 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 	// Open the file in ReadOnly mode
 	if (!doc.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		// Report an error if the file couldn't be opened
-		Logger::get().log(MessageType::Error, QString("Error opening file: %1").arg(doc.errorString()).toUtf8());
+		Logger::get().log(MessageType::Error, QString("Error opening file: %1").arg(doc.errorString()));
 		return;
 	}
 
@@ -36,7 +30,7 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 
 	// Check for errors during reading
 	if (in.status() != QTextStream::Ok) {
-		Logger::get().log(MessageType::Error, QString("Error reading file: %1").arg(in.status()).toUtf8());
+		Logger::get().log(MessageType::Error, QString("Error reading file: %1").arg(in.status()));
 		doc.close(); // Close the file before returning
 		return;
 	}
@@ -54,7 +48,10 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 		if (!semtk.has_value()) continue;
 		int type = static_cast<int>(semtk.value());
 
-		deltaline = token.first.line - deltaline;
+		//Logger::get().log(MessageType::Info, QString("old deltaline: %1").arg(deltaline));
+		//Logger::get().log(MessageType::Info, QString("token.first.line: %1").arg(token.first.line));
+		deltaline = qMax(token.first.line - 1 - deltaline, 0);
+		//Logger::get().log(MessageType::Info, QString("new deltaline: %1").arg(deltaline));
 		deltastart = token.first.start - deltastart;
 
 		//protocol()->notifyShowMessage({MessageType::Info, QString("%1 %2").arg(deltaline).arg(type).toUtf8()});
@@ -66,7 +63,6 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 		tokens.data.append(0); // tokenModifiers
 	}
 
-
 	resp.sendResponse(tokens);
 }
 
@@ -75,7 +71,6 @@ void SemanticHighlighting::registerHandlers(QLanguageServer* server,
 	LanguageServerModule::registerHandlers(server, protocol);
 
 	protocol->registerSemanticTokensRequestHandler(REQ_HANDLER(SemanticHighlighting::semanticTokensRequest, _1, _2 ,_3));
-	protocol->notifyShowMessage({MessageType::Info, "Hello!"});
 }
 
 void SemanticHighlighting::setupCapabilities(const InitializeParams& clientInfo, InitializeResult& result) {

@@ -21,7 +21,7 @@ using namespace QLspSpecification;
 //TODO: "Modules" namespace
 class SemanticHighlighting : public LanguageServerModule {
 public:
-	explicit SemanticHighlighting(QObject *parent = nullptr);
+	//explicit SemanticHighlighting(QObject *parent = nullptr);
 
 	QString name() const;
 	void registerHandlers(QLanguageServer* server,

@@ -19,23 +19,30 @@ void SquirrelEnv::squirrelError(void* ud, const SQChar* s) {
 
 QList<QPair<SquirrelEnv::Range, SQInteger>> SquirrelEnv::lex(const QString& buffer) {
 	QList<QPair<Range, SQInteger>> resp;
-	Logger::get().log(MessageType::Info, QString("buffer: %1").arg(buffer).toUtf8());
+	Logger::get().log(MessageType::Info, QString("buffer: %1 (%2)").arg(buffer).arg(buffer.size()));
 
-	BufState bufstate{buffer.toStdString().data(), buffer.size(), 0};
+	char* rawdata = buffer.toStdString().data();
+	BufState bufstate{rawdata, buffer.size(), 0};
+
 	lexer->Init(vm->_sharedstate, bufLexfeed, &bufstate, squirrelError, nullptr);
-	SQInteger start = 0;
+
+	int start = 0;
 	do {
-		Logger::get().log(MessageType::Info, "Yoohoo");
+		start = static_cast<int>(lexer->_currentcolumn);
 		SQInteger token = lexer->Lex();
 
-		Range range{lexer->_currentline, start, lexer->_currentcolumn};
-		resp.append({range, token});
+		if (token != 0) {
+			Range range{static_cast<int>(lexer->_currentline),
+						start,
+						static_cast<int>(lexer->_currentcolumn)};
+			resp.append({range, token});
+		}
 
-		start = lexer->_currentcolumn;
-		Logger::get().log(MessageType::Info, QString("start: %1").arg(start).toUtf8());
+
+		Logger::get().log(MessageType::Info, QString("token: %1 (%2)").arg(QChar(static_cast<int>(token))).arg(token));
 	} while (lexer->_currdata != SQUIRREL_EOB);
 
-	qDebug() << "EXITED";
+	Logger::get().log(MessageType::Info, QString("tokens: %1").arg(resp.size()));
 
 	return resp;
 }

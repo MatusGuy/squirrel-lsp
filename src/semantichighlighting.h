@@ -13,7 +13,7 @@
 #include <squirrel/sqvm.h>
 
 #include "languageservermodule.h"
-#include "squirrelenv.h"
+#include "squirrelreader.h"
 #include "semantictokens.h"
 
 using namespace QLspSpecification;

@@ -9,7 +9,7 @@ void SyncModule::registerHandlers(QLanguageServer* server, QLanguageServerProtoc
 
 	//protocol->registerDidChangeTextDocumentNotificationHandler([this](const QByteArray &,
 	//																  const DidChangeTextDocumentParams& params) {
-	//	SquirrelEnv::get().lexer->
+	//	SquirrelReader::get().sync();
 	//});
 }
 

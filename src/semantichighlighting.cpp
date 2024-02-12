@@ -9,61 +9,36 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 												 LSPPartialResponse<std::variant<SemanticTokens, std::nullptr_t>,
 																	SemanticTokensPartialResult>&& resp) {
 	QString docpath = QUrl(params.textDocument.uri).toLocalFile();
-	//Logger::get().log(MessageType::Info, QString("Opening %1").arg(docpath).toUtf8());
 
-	//protocol()->notifyShowMessage({MessageType::Info, "Process semantic tokens request."});
-
-	QFile doc(docpath);
-
-	// Open the file in ReadOnly mode
-	if (!doc.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		// Report an error if the file couldn't be opened
-		Logger::get().log(MessageType::Error, QString("Error opening file: %1").arg(doc.errorString()));
+	auto reader = SquirrelReader::read(docpath);
+	if (!reader->good()) {
+semTokensDone:
+		delete reader;
 		return;
 	}
-
-	// Create a QTextStream to read from the file
-	QTextStream in(&doc);
-
-	// Read all text from the file
-	QString fileContent = in.readAll();
-
-	// Check for errors during reading
-	if (in.status() != QTextStream::Ok) {
-		Logger::get().log(MessageType::Error, QString("Error reading file: %1").arg(in.status()));
-		doc.close(); // Close the file before returning
-		return;
-	}
-
-	// Close the file after reading
-	doc.close();
-
-	QList<QPair<SquirrelEnv::Range, SQInteger>> lexed = SquirrelEnv::get().lex(fileContent);
 
 	SemanticTokens tokens;
 	int deltaline = 1;
 	int deltastart = 0;
-	for (auto token : lexed) {
-		auto semtk = lextkToSemtk(token.second);
-		if (!semtk.has_value()) continue;
-		int type = static_cast<int>(semtk.value());
-
-		//Logger::get().log(MessageType::Info, QString("old deltaline: %1").arg(deltaline));
-		//Logger::get().log(MessageType::Info, QString("token.first.line: %1").arg(token.first.line));
-		deltaline = qMax(token.first.line - 1 - deltaline, 0);
+	for (auto token : reader->tokens()) {
+		Logger::get().log(MessageType::Info, QString("old deltaline: %1").arg(deltaline));
+		Logger::get().log(MessageType::Info, QString("token.first.start.line: %1").arg(token.first.start.line));
+		deltaline = qMax(token.first.start.line - 1 - deltaline, 0);
 		//Logger::get().log(MessageType::Info, QString("new deltaline: %1").arg(deltaline));
-		deltastart = token.first.start - deltastart;
+		deltastart = token.first.start.character - deltastart;
 
 		//protocol()->notifyShowMessage({MessageType::Info, QString("%1 %2").arg(deltaline).arg(type).toUtf8()});
 
 		tokens.data.append(deltaline); // line
 		tokens.data.append(deltastart); // startChar
-		tokens.data.append(token.first.end - token.first.start); // length
-		tokens.data.append(type); // tokenType
+		tokens.data.append(token.first.end.character - token.first.start.character); // length
+		tokens.data.append(static_cast<int>(token.second)); // tokenType
 		tokens.data.append(0); // tokenModifiers
 	}
 
 	resp.sendResponse(tokens);
+
+	goto semTokensDone;
 }
 
 void SemanticHighlighting::registerHandlers(QLanguageServer* server,

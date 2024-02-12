@@ -3,7 +3,7 @@
 
 #include "languageservermodule.h"
 
-#include "squirrelenv.h"
+#include "squirrelreader.h"
 
 class SyncModule : public LanguageServerModule {
 public:

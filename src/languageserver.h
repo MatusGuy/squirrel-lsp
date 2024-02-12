@@ -1,7 +1,7 @@
 #ifndef LANGUAGESERVER_H
 #define LANGUAGESERVER_H
 
-#include "squirrelenv.h"
+#include "squirrelreader.h"
 
 #include "syncmodule.h"
 #include "semantichighlighting.h"

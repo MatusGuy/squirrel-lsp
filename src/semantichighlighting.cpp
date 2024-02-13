@@ -12,7 +12,6 @@ void SemanticHighlighting::semanticTokensRequest(const QByteArray &,
 
 	auto reader = SquirrelReader::read(docpath);
 	if (!reader->good()) {
-semTokensDone:
 		delete reader;
 		return;
 	}
@@ -21,10 +20,10 @@ semTokensDone:
 	int deltaline = 1;
 	int deltastart = 0;
 	for (auto token : reader->tokens()) {
-		Logger::get().log(MessageType::Info, QString("old deltaline: %1").arg(deltaline));
-		Logger::get().log(MessageType::Info, QString("token.first.start.line: %1").arg(token.first.start.line));
+		Logger::info(QString("old deltaline: %1").arg(deltaline));
+		Logger::info(QString("token.first.start.line: %1").arg(token.first.start.line));
 		deltaline = qMax(token.first.start.line - 1 - deltaline, 0);
-		//Logger::get().log(MessageType::Info, QString("new deltaline: %1").arg(deltaline));
+		//Logger::info(QString("new deltaline: %1").arg(deltaline));
 		deltastart = token.first.start.character - deltastart;
 
 		//protocol()->notifyShowMessage({MessageType::Info, QString("%1 %2").arg(deltaline).arg(type).toUtf8()});
@@ -38,7 +37,7 @@ semTokensDone:
 
 	resp.sendResponse(tokens);
 
-	goto semTokensDone;
+	delete reader;
 }
 
 void SemanticHighlighting::registerHandlers(QLanguageServer* server,

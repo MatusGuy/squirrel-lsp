@@ -47,7 +47,7 @@ public:
 	static SQInteger bufLexfeed(SQUserPointer file) {
 		BufState* buf = (BufState*) file;
 		if(buf->size < (buf->ptr + 1)) {
-			Logger::get().log(MessageType::Info, "heheheha");
+			Logger::info("heheheha");
 			return 0;
 		}
 		return buf->buf[buf->ptr++];

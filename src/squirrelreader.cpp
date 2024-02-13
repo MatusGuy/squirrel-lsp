@@ -20,7 +20,7 @@ void SquirrelReader::squirrelError(void* ud, const SQChar* s) {
 
 QList<QPair<SquirrelReader::Range, SQInteger>> SquirrelReader::lex(const QString& buffer) {
 	QList<QPair<Range, SQInteger>> resp;
-	Logger::get().log(MessageType::Info, QString("buffer: %1 (%2)").arg(buffer).arg(buffer.size()));
+	Logger::info(QString("buffer: %1 (%2)").arg(buffer).arg(buffer.size()));
 
 	char* rawdata = buffer.toStdString().data();
 	BufState bufstate{rawdata, buffer.size(), 0};
@@ -40,10 +40,10 @@ QList<QPair<SquirrelReader::Range, SQInteger>> SquirrelReader::lex(const QString
 		}
 
 
-		Logger::get().log(MessageType::Info, QString("token: %1 (%2)").arg(QChar(static_cast<int>(token))).arg(token));
+		Logger::info(QString("token: %1 (%2)").arg(QChar(static_cast<int>(token))).arg(token));
 	} while (lexer->_currdata != SQUIRREL_EOB);
 
-	Logger::get().log(MessageType::Info, QString("tokens: %1").arg(resp.size()));
+	Logger::info(QString("tokens: %1").arg(resp.size()));
 
 	return resp;
 }
@@ -57,12 +57,12 @@ SquirrelReader::SquirrelReader(const QString& filepath):
 {
 	std::reverse(std::begin(m_highlighters), std::end(m_highlighters));
 
-	Logger::get().log(MessageType::Log, QString("Opening %1").arg(filePath()));
+	Logger::log(QString("Opening %1").arg(filePath()));
 
 	// Open the file in ReadOnly mode
 	if (!m_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		// Report an error if the file couldn't be opened
-		Logger::get().log(MessageType::Error, QString("Error opening file: %1").arg(m_file.errorString()));
+		Logger::error(QString("Error opening file: %1").arg(m_file.errorString()));
 		m_good = false;
 		return;
 	}
@@ -89,7 +89,7 @@ void SquirrelReader::sync()
 
 	// Check for errors during reading
 	if (in.status() != QTextStream::Ok) {
-		Logger::get().log(MessageType::Error, QString("Error reading file: %1").arg(in.status()));
+		Logger::error(QString("Error reading file: %1").arg(in.status()));
 		m_good = false;
 		return;
 	}
@@ -105,19 +105,21 @@ void SquirrelReader::lexer(QString buffer)
 		QRegularExpressionMatchIterator i = highlighter.regex.globalMatch(buffer);
 		while (i.hasNext()) {
 			QRegularExpressionMatch match = i.next();
-			if (match.hasMatch()) {
-				Range range = {
-					{
-						countLines(buffer, match.capturedStart()),
-						getPosInLine(buffer, match.capturedStart())
-					},
-					{
-						countLines(buffer, match.capturedEnd()),
-						getPosInLine(buffer, match.capturedEnd())
-					}
-				};
-				m_tokens.append({range, highlighter.type});
-			}
+
+			if (!match.hasMatch()) return;
+
+			Range range = {
+				{
+					countLines(buffer, match.capturedStart()),
+					getPosInLine(buffer, match.capturedStart())
+				},
+				{
+					countLines(buffer, match.capturedEnd()),
+					getPosInLine(buffer, match.capturedEnd())
+				}
+			};
+			Logger::log(QString("%1 %2 %3 %4").arg(range.start.line).arg(range.end.line).arg(range.start.character).arg(range.end.character));
+			m_tokens.append({range, highlighter.type});
 		}
 	}
 

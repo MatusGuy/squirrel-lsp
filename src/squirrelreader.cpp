@@ -1,6 +1,6 @@
 #include "squirrelreader.h"
 
-/*
+#include "semantictokens.h"
 SquirrelReader::SquirrelReader() {
 	vm = sq_open(1024);
 	//compiler = new SQCompiler(vm, bufLexfeed, "", sourcename, raiseerror, lineinfo);
@@ -18,8 +18,8 @@ void SquirrelReader::squirrelError(void* ud, const SQChar* s) {
 	qCritical() << "A Squirrel error has occured: " << s;
 }
 
-QList<QPair<SquirrelReader::Range, SQInteger>> SquirrelReader::lex(const QString& buffer) {
-	QList<QPair<Range, SQInteger>> resp;
+QList<QPair<SquirrelReader::TokenCoords, SQInteger>> SquirrelReader::lex(const QString& buffer) {
+	QList<QPair<TokenCoords, SQInteger>> resp;
 	Logger::info(QString("buffer: %1 (%2)").arg(buffer).arg(buffer.size()));
 
 	char* rawdata = buffer.toStdString().data();
@@ -28,27 +28,32 @@ QList<QPair<SquirrelReader::Range, SQInteger>> SquirrelReader::lex(const QString
 	lexer->Init(vm->_sharedstate, bufLexfeed, &bufstate, squirrelError, nullptr);
 
 	int start = 0;
-	do {
+	SQInteger token = 0;
+	forever {
 		start = static_cast<int>(lexer->_currentcolumn);
-		SQInteger token = lexer->Lex();
+		token = lexer->Lex();
+		Logger::info(QString("token: %1 (%2, %3)").arg(QChar(static_cast<int>(token)))
+												  .arg(token)
+												  .arg(lextkToSemtk(token).has_value() ? SEMANTIC_TOKEN_TYPES.at((int)(lextkToSemtk(token).value())) : ""));
 
-		if (token != 0) {
-			Range range{static_cast<int>(lexer->_currentline),
-						start,
-						static_cast<int>(lexer->_currentcolumn)};
-			resp.append({range, token});
+		if (token == 0) {
+			// EOB
+			break;
 		}
 
+		TokenCoords range{static_cast<int>(lexer->_currentline),
+					start,
+					static_cast<int>(lexer->_currentcolumn)};
+		resp.append({range, token});
 
-		Logger::info(QString("token: %1 (%2)").arg(QChar(static_cast<int>(token))).arg(token));
-	} while (lexer->_currdata != SQUIRREL_EOB);
+	}
 
 	Logger::info(QString("tokens: %1").arg(resp.size()));
 
 	return resp;
 }
-*/
 
+/*
 SquirrelReader::SquirrelReader(const QString& filepath):
 	QObject(nullptr),
 	m_good(true),
@@ -101,12 +106,13 @@ void SquirrelReader::sync()
 
 void SquirrelReader::lexer(QString buffer)
 {
-	for (const Highlighter &highlighter : m_highlighters) {
+	int index = 0;
+	for (const Highlighter& highlighter : m_highlighters) {
 		QRegularExpressionMatchIterator i = highlighter.regex.globalMatch(buffer);
 		while (i.hasNext()) {
 			QRegularExpressionMatch match = i.next();
 
-			if (!match.hasMatch()) return;
+			if (!match.hasMatch()) break;
 
 			Range range = {
 				{
@@ -118,9 +124,10 @@ void SquirrelReader::lexer(QString buffer)
 					getPosInLine(buffer, match.capturedEnd())
 				}
 			};
-			Logger::log(QString("%1 %2 %3 %4").arg(range.start.line).arg(range.end.line).arg(range.start.character).arg(range.end.character));
+			Logger::log(QString("%0 %1 %2 %3 %4").arg(index).arg(range.start.line).arg(range.end.line).arg(range.start.character).arg(range.end.character));
 			m_tokens.append({range, highlighter.type});
 		}
+		index++;
 	}
 
 	/*
@@ -142,7 +149,16 @@ void SquirrelReader::lexer(QString buffer)
 			m_tokens.append({range, SemanticTokenTypes::Comment});
 		}
 	}
-	*/
+	/
+
+	std::sort(m_tokens.begin(), m_tokens.end(), [](const Token& a, const Token& b) {
+		Logger::log(QString("%1 %2 %3 %4").arg(a.first.start.line).arg(a.first.end.line).arg(a.first.start.character).arg(a.first.end.character));
+		if (a.first.start.line != b.first.start.line) {
+			return a.first.start.line > b.first.start.line;
+		} else {
+			return a.first.start.character > b.first.start.character;
+		}
+	});
 }
 
 int SquirrelReader::countLines(QString str, int start)
@@ -154,5 +170,6 @@ int SquirrelReader::countLines(QString str, int start)
 int SquirrelReader::getPosInLine(const QString& str, int start)
 {
 	int lastNewline = str.lastIndexOf('\n', start);
-	return lastNewline != -1 ? lastNewline : start;
+	return lastNewline != -1 ? start - lastNewline : start;
 }
+*/

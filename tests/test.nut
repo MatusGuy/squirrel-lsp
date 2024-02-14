@@ -1,9 +1,1 @@
-class MyClass {
-  constructor() {
-	local a = 1
-  }
-
-}
-
-
-
+local a = 1; class MyClass {}

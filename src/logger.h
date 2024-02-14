@@ -4,7 +4,7 @@
 #include "languageservermodule.h"
 #include "singleton.h"
 
-#define LOGGER_CATEGORY(name, val) static void name#(const QString& message) { return get().msg(MessageType::val##, message); }
+#define LOGGER_CATEGORY(name, val) static void name(const QString& message) { return get().msg(MessageType::val, message); }
 
 class Logger : public LanguageServerModule, public Singleton<Logger> {
 public:

@@ -6,19 +6,19 @@
 #include <QMap>
 #include <QDebug>
 
-#include "qlspcustomtypes_p.h"
-using namespace QLspSpecification;
+//#include "qlspcustomtypes_p.h"
+//using namespace QLspSpecification;
 
-//#include <squirrel.h>
-//#include <squirrel/sqvm.h>
-//#include <squirrel/sqcompiler.h>
-//#include <squirrel/sqlexer.h>
+#include <squirrel.h>
+#include <squirrel/sqvm.h>
+#include <squirrel/sqcompiler.h>
+#include <squirrel/sqlexer.h>
 
 #include "logger.h"
 
-//class SQCompiler;
+class SQCompiler;
 
-class SquirrelReader : public QObject {
+class SquirrelReader : public QObject, public Singleton<SquirrelReader> {
 	Q_OBJECT
 public:
 	struct Highlighter {
@@ -33,10 +33,10 @@ public:
 
 	typedef QPair<Range, SemanticTokenTypes> Token;
 
-	SquirrelReader(const QString& filepath);
+	//SquirrelReader(const QString& filepath);
+	SquirrelReader();
 	~SquirrelReader();
 
-	/*
 	struct BufState {
 		const SQChar *buf;
 		SQInteger size;
@@ -55,19 +55,19 @@ public:
 
 	static void squirrelError(void* ud, const SQChar* s);
 
-	struct Range {
+	struct TokenCoords {
 		int line;
 		int start;
 		int end;
 	};
 
-	QList<QPair<Range, SQInteger>> lex(const QString& buffer);
+	QList<QPair<TokenCoords, SQInteger>> lex(const QString& buffer);
 
 	SQVM* vm;
 	//SQCompiler* compiler;
 	SQLexer* lexer;
-	*/
 
+/*
 	static SquirrelReader* read(QString filepath);
 	void sync();
 	void lexer(QString buffer);
@@ -77,7 +77,7 @@ public:
 	inline QString filePath() { return m_filepath; }
 
 	inline const QList<Token>& tokens() { return m_tokens; }
-
+*/
 signals:
 	void syncFinished();
 
